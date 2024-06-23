@@ -1,0 +1,36 @@
+{
+	"Name": "OuterWildsTwitchRadar",
+	"Version": "0.1.0.0",
+	"Author": "sasuke287",
+	"Actions": [
+        {
+            "Name": "Say Hello",
+            "UUID": "com.sasuke287.outerwildstwitchradar.say-hello",
+            "States": [{ "TitleAlignment": "middle" }]
+        }
+	],
+	"Category": "OuterWildsTwitchRadar",
+	"CategoryIcon": "imgs/plugin/category-icon",
+	"CodePath": "bin/plugin.js",
+	"Description": "Twitchで配信されているOuterWilds配信数の通知",
+	"Icon": "imgs/plugin/marketplace",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.5"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.sasuke287.outerwildstwitchradar"
+}
