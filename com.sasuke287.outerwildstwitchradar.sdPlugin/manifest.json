@@ -4,8 +4,8 @@
 	"Author": "sasuke287",
 	"Actions": [
         {
-            "Name": "Say Hello",
-            "UUID": "com.sasuke287.outerwildstwitchradar.say-hello",
+            "Name": "Twitch Viewer",
+            "UUID": "com.sasuke287.outerwildstwitchradar.twitch-viewer",
             "States": [{ "TitleAlignment": "middle" }]
         }
 	],
