@@ -39,7 +39,7 @@ export class TwitchGameStreamersAction extends SingletonAction {
    * @param ev
    */
   async onWillAppear(ev: WillAppearEvent<any>) {
-    console.log("Action is appearing on the Stream Deck");
+    logger.info("Action is appearing on the Stream Deck");
     this.startInterval(ev);
   }
 
@@ -48,7 +48,7 @@ export class TwitchGameStreamersAction extends SingletonAction {
    * @param ev
    */
   async onWillDisappear(ev: WillDisappearEvent<any>) {
-    console.log("Action is disappearing from the Stream Deck");
+    logger.info("Action is disappearing from the Stream Deck");
     this.stopInterval();
   }
 
