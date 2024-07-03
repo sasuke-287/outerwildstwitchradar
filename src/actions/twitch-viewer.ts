@@ -27,6 +27,7 @@ export class TwitchGameStreamersAction extends SingletonAction {
   private config!: Config;
   private intervalId: NodeJS.Timeout | null = null;
   private readonly INTERVAL = 22 * 60 * 1000; // 22分をミリ秒に変換
+  private url: string = "https://www.twitch.tv/directory/category/outer-wilds";
 
   constructor() {
     super();
@@ -54,7 +55,10 @@ export class TwitchGameStreamersAction extends SingletonAction {
   /**
    * ボタン押下時
    */
-  async onKeyDown(ev: KeyDownEvent<any>) {}
+  async onKeyDown(ev: KeyDownEvent<any>) {
+    logger.info("Key pressed");
+    await streamDeck.system.openUrl(this.url);
+  }
 
   /**
    * タイマー作動
