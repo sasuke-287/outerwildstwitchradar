@@ -1,12 +1,16 @@
 // src/actions/twitch-game-streamers.ts
-import { action, KeyDownEvent, SingletonAction} from "@elgato/streamdeck";
-import streamDeck, { LogLevel } from "@elgato/streamdeck";
+import {
+  action,
+  KeyDownEvent,
+  SingletonAction,
+  WillAppearEvent,
+  WillDisappearEvent,
+  streamDeck,
+} from "@elgato/streamdeck";
 import axios from "axios";
 import * as fs from "fs";
 import { fileURLToPath } from "url";
 import * as path from "path";
-import { count } from "console";
-import { stringify } from "querystring";
 
 const logger = streamDeck.logger.createScope("Custom Scope");
 const __filename = fileURLToPath(import.meta.url);
@@ -21,10 +25,78 @@ interface Config {
 @action({ UUID: "com.sasuke287.outerwildstwitchradar.twitch-viewer" })
 export class TwitchGameStreamersAction extends SingletonAction {
   private config!: Config;
+  private intervalId: NodeJS.Timeout | null = null;
+  private readonly INTERVAL = 22 * 60 * 1000; // 22分をミリ秒に変換
 
   constructor() {
     super();
     this.loadConfig();
+  }
+
+  /**
+   * アクションが表示された時
+   * @param ev
+   */
+  async onWillAppear(ev: WillAppearEvent<any>) {
+    console.log("Action is appearing on the Stream Deck");
+    this.startInterval(ev);
+  }
+
+  /**
+   * アクションが非表示された時
+   * @param ev
+   */
+  async onWillDisappear(ev: WillDisappearEvent<any>) {
+    console.log("Action is disappearing from the Stream Deck");
+    this.stopInterval();
+  }
+
+  /**
+   * ボタン押下時
+   */
+  async onKeyDown(ev: KeyDownEvent<any>) {}
+
+  /**
+   * タイマー作動
+   * タイトル編集のためevを引き継ぐ
+   */
+  private startInterval(ev: WillAppearEvent<any>) {
+    if (this.intervalId === null) {
+      this.executeFunction(ev);
+      this.intervalId = setInterval(
+        () => this.executeFunction(ev),
+        this.INTERVAL
+      );
+    }
+  }
+
+  /**
+   * タイマー停止
+   */
+  private stopInterval() {
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
+
+  /**
+   * API実行と表示
+   */
+  private async executeFunction(ev: WillAppearEvent<any>) {
+    try {
+      await ev.action.setTitle("探索中");
+      logger.info(`探索中`);
+      const streamersData = await this.fetchStreamersCount();
+      const streamersCount = Object.keys(streamersData).length;
+
+      await ev.action.setTitle(`配信者数: ${streamersCount}`);
+      logger.debug(`APIデータ: ${JSON.stringify(streamersData)}`);
+      logger.info(`配信者数: ${streamersCount}`);
+    } catch (error) {
+      console.error("Error fetching streamers count:", error);
+      await ev.action.setTitle("エラー");
+    }
   }
 
   private loadConfig() {
@@ -52,28 +124,11 @@ export class TwitchGameStreamersAction extends SingletonAction {
       }
     );
 
-    return response.data;
+    return response.data.data;
   }
 
-  async onKeyDown(ev: KeyDownEvent<any>) {
-    try {
-      await ev.action.setTitle("探索中");
-      logger.info("ボタンが押されたよ");
-
-      const accessToken = await this.getAccessToken();
-      logger.info(`トークン確保 ${accessToken}`);
-
-      const streamersCount = await this.getStreamersCount(accessToken);
-      const aaa = Object.keys(streamersCount.data).length;
-
-      logger.info(JSON.stringify(streamersCount));
-      logger.info(String(aaa));
-
-      await ev.action.setTitle(`配信者数: ${aaa}`);
-      logger.info(`配信者数: ${aaa}`);
-    } catch (error) {
-      console.error("Error fetching streamers count:", error);
-      await ev.action.setTitle("エラー");
-    }
+  private async fetchStreamersCount(): Promise<number> {
+    const accessToken = await this.getAccessToken();
+    return await this.getStreamersCount(accessToken);
   }
 }
